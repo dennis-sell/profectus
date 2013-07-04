@@ -1,7 +1,7 @@
 import math
 import numpy
 
-epsilon = 0.000001
+EPSILON = 0.000001
 
 class HiddenMarkovModel(object):
 
@@ -19,18 +19,19 @@ class HiddenMarkovModel(object):
     self.emissions = numpy.matrix(emissions)
     self.N = self.emissions.shape[0]   # Number of states
     self.M = self.emissions.shape[1]   # Number of obeservations
-
+    self.states = range(self.N)
+    self.observations = range(self.M)
   def is_valid(self):
     M = self.M
     N = self.N
     # Creates a list of requirements. Then checks if the list meets all of them.
     reqs = [self.initial.shape == (1,N),
             self.transitions.shape == (N,N),
-            self.emissions.shape == (M,N),
-            abs(self.initial.sum() - 1) < epsilon]
+            self.emissions.shape == (N,M),
+            abs(self.initial.sum() - 1) < EPSILON]
 
     transition_row_sums = self.transitions.sum(1).flatten().tolist()[0]
-    reqs.extend([abs(row_sum - 1) < epsilon for row_sum in transition_row_sums])
+    reqs.extend([abs(row_sum - 1) < EPSILON for row_sum in transition_row_sums])
     emission_row_sums = self.emissions.sum(1).flatten().tolist()[0]
-    reqs.extend([abs(row_sum - 1) < epsilon for row_sum in emission_row_sums])
-    return reqs.count(False) > 0
+    reqs.extend([abs(row_sum - 1) < EPSILON for row_sum in emission_row_sums])
+    return all(reqs)
