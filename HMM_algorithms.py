@@ -16,5 +16,8 @@ def probability_of_observations(hmm, observations):
     for s2 in hmm.states:
       partial_probability.append(sum(last_row[s1] * hmm.transitions[s1, s2] for s1 in hmm.states)
                                                                            * hmm.emissions[s2, o])
-
   return sum(partial_probability)
+
+
+def vitterbi(hmm, observations):
+  pass

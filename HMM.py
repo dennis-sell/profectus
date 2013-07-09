@@ -21,6 +21,7 @@ class HiddenMarkovModel(object):
     self.M = self.emissions.shape[1]   # Number of obeservations
     self.states = range(self.N)
     self.observations = range(self.M)
+
   def is_valid(self):
     M = self.M
     N = self.N
