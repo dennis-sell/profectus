@@ -1,5 +1,6 @@
-import HMM
 import unittest
+
+import HMM
 import HMM_algorithms as Algs
 
 class TestSequenceFunctions(unittest.TestCase):
