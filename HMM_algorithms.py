@@ -20,18 +20,26 @@ def probability_of_observations(hmm, observations):
   return sum(partial_probability)
 
 
-def probability_of_observations_by_state_sequence(hmm, observations): 
-  possible_state_sequences = [[state] for state in hmm.states]
-  for i in range(len(observations) - 1):
-    possible_state_sequences = [sequence + [next] for sequence in possible_state_sequences for next in hmm.states]
+def analysis_of_state_sequences(hmm, observations):
+
+  def all_sequences(elements, length):
+    possible_sequences = [[]]
+    for _ in range(length):
+      possible_sequences = [sequence + [n] for sequence in possible_sequences for n in elements]
+    return possible_sequences
+
+  T = len(observations)
+  state_sequences = all_sequences(hmm.states, T)
+
   results = []
-  for sequence in possible_state_sequences: 
-    current_state = sequence[0]
-    probability = hmm.initial[0, current_state] * hmm.emissions[current_state, observations[0]]
+  for sequence in state_sequences:
+    probability = hmm.initial[0, sequence[0]] * hmm.emissions[sequence[0], observations[0]]
     for t in range(1, T):
-      probability *= hmm.transitions[sequence[t - 1], sequence[t]] * hmm.emissions[sequence[t], observations[t]]
+      probability *= hmm.transitions[sequence[t - 1], sequence[t]]
+      probability *= hmm.emissions[sequence[t], observations[t]]
     results.append((sequence, probability))
   return results
+
 
 def vitterbi(hmm, observations):
   T = len(observations)
@@ -46,15 +54,20 @@ def vitterbi(hmm, observations):
     delta = []
     omega_row = []
     for s2 in hmm.states:
-      max_index, max_value = max(enumerate(old_delta[s1] * hmm.transitions[s1, s2] for s1 in hmm.states), key=operator.itemgetter(1))
+      values = enumerate(old_delta[s1] * hmm.transitions[s1, s2] for s1 in hmm.states)
+      max_index, max_value = max(values, key=operator.itemgetter(1))
       omega_row.append(max_index)
-      delta.append(max_value * hmm.emissions[s2, o])  
+      delta.append(max_value * hmm.emissions[s2, o])
     omega.append(omega_row)
-  
+
   states = [delta.index(max(delta))]
   for t in range(1, T):
     states.insert(0, omega[t][states[0]])
   return state
 
+
+
 if __name__ == "__main__":
-  probability_of_observations_by_state_sequence(HMM.HiddenMarkovModel([.5],[[.5,.5],[.5,.5]],[[.2,.8], [.8, .2]]), [0,1,1])
+  hmm = HMM.HiddenMarkovModel([.5,.5],[[.5,.5],[.5,.5]],[[.2,.8], [.8, .2]])
+  for seq, prob in analysis_of_state_sequences(hmm, [0,1,1]):
+    print seq, prob

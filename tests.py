@@ -16,6 +16,8 @@ class TestSequenceFunctions(unittest.TestCase):
     emissions = transitions
     self.model2 = HMM.HiddenMarkovModel(initial, transitions, emissions)
 
+    self.model3 = HMM.HiddenMarkovModel([.5,.5],[[.5,.5],[.5,.5]],[[.2,.8], [.8, .2]])
+
   def test_is_valid(self):
     self.assertTrue(self.model1.is_valid())
 
@@ -30,6 +32,15 @@ class TestSequenceFunctions(unittest.TestCase):
     observations = [1,1]
     self.assertAlmostEquals(Algs.probability_of_observations(self.model2, observations), .1175)
 
+
+  def test_probability_by_state_sequence(self):
+    """ Sum of the probabilities of all state sequences with a set of observations
+        should be equal to probability that observations occur.
+    """
+    observations = [0,1,1]
+    probabilities = Algs.analysis_of_state_sequences(self.model3, observations)
+    total_probability = sum(prob for sequence, prob in probabilities)
+    self.assertAlmostEquals(total_probability, Algs.probability_of_observations(self.model3, observations))
 
 if __name__ == "__main__":
   unittest.main()
