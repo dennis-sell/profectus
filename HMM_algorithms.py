@@ -49,9 +49,8 @@ def vitterbi(hmm, observations):
   omega = [[0] * hmm.N]
   # Recursion
   for t in range(1, T):
-    old_delta = delta
+    old_delta, delta = delta, []
     o = observations[t]
-    delta = []
     omega_row = []
     for s2 in hmm.states:
       values = enumerate(old_delta[s1] * hmm.transitions[s1, s2] for s1 in hmm.states)
@@ -63,7 +62,7 @@ def vitterbi(hmm, observations):
   states = [delta.index(max(delta))]
   for t in range(1, T):
     states.insert(0, omega[t][states[0]])
-  return state
+  return states
 
 
 

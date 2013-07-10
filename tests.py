@@ -42,5 +42,12 @@ class TestSequenceFunctions(unittest.TestCase):
     total_probability = sum(prob for sequence, prob in probabilities)
     self.assertAlmostEquals(total_probability, Algs.probability_of_observations(self.model3, observations))
 
+
+  def test_vitterbi(self):
+    observations = [2,1,0]
+    probabilities_by_sequence = Algs.analysis_of_state_sequences(self.model1, observations)
+    best_sequence = max(probabilities_by_sequence, key=lambda (s, p) : p)[0]
+    self.assertEquals(best_sequence, Algs.vitterbi(self.model1, observations))
+
 if __name__ == "__main__":
   unittest.main()
