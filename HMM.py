@@ -1,4 +1,5 @@
 import collections
+import itertools
 import math
 import numpy
 
@@ -12,7 +13,19 @@ class Mapping(dict):
         dict.__setitem__(self, key, value)
         dict.__setitem__(self, value, key)
 
-Model = collections.namedtuple('Model', ['model', 'o_mapper', 'm_mapper'])
+Model = collections.namedtuple('Model', ['model', 'o_mapper', 's_mapper'])
+
+def get_mapping(list_of_sequences):
+  all_elements = set(itertools.chain(*list_of_sequences))
+  numbered = list(enumerate(list(all_elements)))
+  mapper = Mapping()
+  for e, v in numbered:
+    mapper[e] = v
+
+  mapped_sequences = []
+  for sequence in list_of_sequences:
+    mapped_sequences.append([mapper[elem] for elem in sequence])
+  return mapper, mapped_sequences
 
 def ParameterEstimation(observations, states):
   # Checks if inputs have the same size.
@@ -20,6 +33,8 @@ def ParameterEstimation(observations, states):
       not all(len(o) == len(s) for o,s in zip(observations, states))):
     raise  ValueError("Observations and states do not match in size.")
 
+  state_mapper, mapped_states = get_mapping(states)
+  observation_mapper, mapped_observations = get_mapping(observations)
 
 
 class HiddenMarkovModel(object):
@@ -55,3 +70,6 @@ class HiddenMarkovModel(object):
     emission_row_sums = self.emissions.sum(1).flatten().tolist()[0]
     reqs.extend([abs(row_sum - 1) < EPSILON for row_sum in emission_row_sums])
     return all(reqs)
+
+if __name__ == "__main__":
+  ParameterEstimation([["a","b","c"]], [["str1", "str2", "str3"]])
