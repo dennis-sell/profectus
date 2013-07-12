@@ -1,7 +1,26 @@
+import collections
 import math
 import numpy
 
 EPSILON = 0.000001
+
+class Mapping(dict):
+    def __len__(self):
+        return dict.__len__(self) / 2
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        dict.__setitem__(self, value, key)
+
+Model = collections.namedtuple('Model', ['model', 'o_mapper', 'm_mapper'])
+
+def ParameterEstimation(observations, states):
+  # Checks if inputs have the same size.
+  if (len(observations) != len(states) or
+      not all(len(o) == len(s) for o,s in zip(observations, states))):
+    raise  ValueError("Observations and states do not match in size.")
+
+
 
 class HiddenMarkovModel(object):
 
