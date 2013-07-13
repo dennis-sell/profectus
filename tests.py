@@ -40,7 +40,8 @@ class TestSequenceFunctions(unittest.TestCase):
     observations = [0,1,1]
     probabilities = Algs.analysis_of_state_sequences(self.model3, observations)
     total_probability = sum(prob for sequence, prob in probabilities)
-    self.assertAlmostEquals(total_probability, Algs.probability_of_observations(self.model3, observations))
+    self.assertAlmostEquals(total_probability,
+                            Algs.probability_of_observations(self.model3, observations))
 
 
   def test_vitterbi(self):
@@ -55,10 +56,13 @@ class TestSequenceFunctions(unittest.TestCase):
     model =  HMM.parameter_estimation(states, observations)
     smap = model.s_mapper
     omap = model.o_mapper
+
     self.assertAlmostEquals(model.hmm.transitions[smap["b"], smap["a"]], .5)
-    self.assertAlmostEquals(model.hmm.emissions[smap["b"], omap["str2"]], 2.0/3) 
+    self.assertAlmostEquals(model.hmm.emissions[smap["b"], omap["str2"]], 2.0/3)
+
     correct_initial = [.5,.5,.0]
-    self.assertAlmostEquals([model.hmm.initial[state] for state in ["a", "b", "c"]], correct_intial)
+    calculated_initial = [model.hmm.initial[0, smap[state]] for state in ["a", "b", "c"]]
+    self.assertAlmostEquals(calculated_initial, correct_initial)
 
 
 if __name__ == "__main__":
