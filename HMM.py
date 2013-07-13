@@ -29,13 +29,30 @@ def get_mapping(list_of_sequences):
 
 def ParameterEstimation(observations, states):
   # Checks if inputs have the same size.
-  if (len(observations) != len(states) or
-      not all(len(o) == len(s) for o,s in zip(observations, states))):
+  if len(observations) != len(states) or not observations:
+    raise ValueError("Invalid number of states and observation sequences")
+  if not all(len(o) == len(s) and o for o,s in zip(observations, states)):
     raise  ValueError("Observations and states do not match in size.")
+
+  total_sequences = len(states)
+  total_instances = len(itertools.chain(*states))
 
   state_mapper, mapped_states = get_mapping(states)
   observation_mapper, mapped_observations = get_mapping(observations)
 
+  first_states = [sequence[0] for sequence in states]
+  initial_counts = collections.Counter(first_states)
+  num_states = len(Mapping)
+  initial = [float(initial_counts[s])/total_sequences for s in range(num_states)]
+
+  paired_states_and_observations = (zip(s_seq, o_seq) for s_seq, o_seq in zip(states, observations))
+  emission_counts = Counter(itertools.chain(*paired_states_and_observations))
+  matrix = [ [emission_counts[(i,j)] for i in range(num_states)] for j in range(num_states)]
+  emissions = []
+  for row in matrix:
+    row_total = float(sum(row))
+    stochastic_row = [count/row_total for count in row]
+    emissions.append(stochastic_row)
 
 class HiddenMarkovModel(object):
 
