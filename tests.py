@@ -49,5 +49,17 @@ class TestSequenceFunctions(unittest.TestCase):
     best_sequence = max(probabilities_by_sequence, key=lambda (s, p) : p)[0]
     self.assertEquals(best_sequence, Algs.vitterbi(self.model1, observations))
 
+  def test_parameter_estimation(self):
+    states = [["a","b","c"],["b","a","b"]]
+    observations = [["str1", "str2", "str3"],["str3","str2", "str2"]]
+    model =  HMM.parameter_estimation(states, observations)
+    smap = model.s_mapper
+    omap = model.o_mapper
+    self.assertAlmostEquals(model.hmm.transitions[smap["b"], smap["a"]], .5)
+    self.assertAlmostEquals(model.hmm.emissions[smap["b"], omap["str2"]], 2.0/3) 
+    correct_initial = [.5,.5,.0]
+    self.assertAlmostEquals([model.hmm.initial[state] for state in ["a", "b", "c"]], correct_intial)
+
+
 if __name__ == "__main__":
   unittest.main()
