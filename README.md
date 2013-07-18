@@ -1,0 +1,1 @@
+Profectus is a basic implementation of Hidden Markov Models, written in python. Deisgned for easy use, this library allows users to quickly contruct and utilize Hidden Markov Models for their own purposes.
