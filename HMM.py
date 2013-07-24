@@ -28,20 +28,20 @@ def get_mapping(list_of_sequences):
     mapped_sequences.append([mapper[elem] for elem in sequence])
   return mapper, mapped_sequences, len(all_elements)
 
+def stochasticize(row, smoothing_constant):
+  row_total = float(sum(row))
+  if row_total != 0:
+    stochastic_row = [count/row_total for count in row]
+  else:
+    stochastic_row = row
+  return stochastic_row
+  
 
-def stochasticize(matrix):
-  new_matrix = []
-  for row in matrix:
-    row_total = float(sum(row))
-    if row_total != 0:
-      stochastic_row = [count/row_total for count in row]
-    else:
-      stochastic_row = row
-    new_matrix.append(stochastic_row)
-  return new_matrix
+def stochasticize_matrix(matrix, smoothing_constant):
+  return [stochasticize(row, smoothing_constant) for row in matrix]
 
 
-def parameter_estimation(states, observations):
+def parameter_estimation(states, observations, smoothing_constant=.01):
   # Checks if inputs have the same size.
   if len(observations) != len(states) or not observations:
     raise ValueError("Invalid number of states and observation sequences")
@@ -54,20 +54,20 @@ def parameter_estimation(states, observations):
   # Get initial state matrix
   first_states = [sequence[0] for sequence in mapped_states]
   initial_counts = collections.Counter(first_states)
-  total_sequences = float(len(mapped_states))
-  initial = [initial_counts[s]/total_sequences for s in range(num_states)]
+  initial = [initial_counts[s] for s in range(num_states)]
+  initial = stochasticize(initial, smoothing_constant)
 
   # Get emissions probability matrix
   paired_states_and_observations = (zip(s_seq, o_seq) for s_seq, o_seq in zip(mapped_states, mapped_observations))
   emission_counts = collections.Counter(itertools.chain(*paired_states_and_observations))
   matrix = [ [emission_counts[(i,j)] for j in range(num_observations)] for i in range(num_states)]
-  emissions = stochasticize(matrix)
+  emissions = stochasticize_matrix(matrix, smoothing_constant)
 
   # Get state transition probability matrix
   state_transitions = itertools.chain(*[zip(sequence, sequence[1:]) for sequence in mapped_states])
   transition_counts = collections.Counter(state_transitions)
   matrix = [ [transition_counts[(i,j)] for j in range(num_states)] for i in range(num_states)]
-  transitions = stochasticize(matrix)
+  transitions = stochasticize_matrix(matrix, smoothing_constant)
 
   hmm = HiddenMarkovModel(initial, transitions, emissions)
   return Model(hmm=hmm, o_mapper=observation_mapper, s_mapper=state_mapper)

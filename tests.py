@@ -53,7 +53,7 @@ class TestSequenceFunctions(unittest.TestCase):
   def test_parameter_estimation(self):
     states = [["a","b","c"],["b","a","b"]]
     observations = [["str1", "str2", "str3"],["str3","str2", "str2"]]
-    model =  HMM.parameter_estimation(states, observations)
+    model =  HMM.parameter_estimation(states, observations, smoothing_constant=0)
     smap = model.s_mapper
     omap = model.o_mapper
 
