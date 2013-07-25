@@ -41,12 +41,9 @@ def stochasticize_matrix(matrix, smoothing_constant):
   return [stochasticize(row, smoothing_constant) for row in matrix]
 
 
-def parameter_estimation(states, observations, smoothing_constant=.01):
-  # Checks if inputs have the same size.
-  if len(observations) != len(states) or not observations:
-    raise ValueError("Invalid number of states and observation sequences")
-  if not all(len(o) == len(s) and o for o,s in zip(observations, states)):
-    raise  ValueError("Observations and states do not match in size.")
+def parameter_estimation(training_data, smoothing_constant=.01):
+  observations = [[o for o,s in row] for row in training_data]
+  states = [[s for o,s in row] for row in training_data]
 
   state_mapper, mapped_states, num_states = get_mapping(states)
   observation_mapper, mapped_observations, num_observations = get_mapping(observations)
