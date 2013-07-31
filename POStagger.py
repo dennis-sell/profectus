@@ -17,10 +17,10 @@ for line in f:
       sentence.append((word_and_tag[0], word_and_tag[1]))
 
 print len(training_data)
-model = HMM.parameter_estimation(training_data)
+model = HMM.AppliedHMM(training_data)
 
-"""
+
 example_sent = "The green cat is in a hat ."
-example_tags = HMM_algorithms.vitterbi(model, example_sent.split())
+example_tags = model.decode(example_sent.split())
 print example_tags
-"""
+
