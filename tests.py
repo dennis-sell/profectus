@@ -54,7 +54,7 @@ class TestSequenceFunctions(unittest.TestCase):
     states = [["a","b","c"],["b","a","b"]]
     observations = [["str1", "str2", "str3"],["str3","str2", "str2"]]
     data = [zip(o, s) for o, s in zip(observations, states)]
-    model =  HMM.parameter_estimation(data, smoothing_constant=0)
+    model =  HMM.AppliedHMM(data, smoothing_constant=0)
     smap = model.s_mapper
     omap = model.o_mapper
 

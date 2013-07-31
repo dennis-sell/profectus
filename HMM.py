@@ -2,11 +2,11 @@ import collections
 import itertools
 import math
 import numpy
+import HMM_algorithms as Algs
 
 
-Model = collections.namedtuple('Model', ['hmm', 'o_mapper', 's_mapper'])
+#Model = collections.namedtuple('Model', ['hmm', 'o_mapper', 's_mapper'])
 
-EPSILON = 0.000001
 
 class HiddenMarkovModel(object):
 
@@ -28,20 +28,30 @@ class HiddenMarkovModel(object):
         self.observations = range(self.M)
 
     def is_valid(self):
+        epsilon = 0.000001
         M = self.M
         N = self.N
         # Creates a list of requirements. Then checks if the list meets all of them.
         reqs = [self.initial.shape == (1,N),
                 self.transitions.shape == (N,N),
                 self.emissions.shape == (N,M),
-                abs(self.initial.sum() - 1) < EPSILON]
+                abs(self.initial.sum() - 1) < epsilon]
 
         transition_row_sums = self.transitions.sum(1).flatten().tolist()[0]
-        reqs.extend([abs(row_sum - 1) < EPSILON for row_sum in transition_row_sums])
+        reqs.extend([abs(row_sum - 1) < epsilon for row_sum in transition_row_sums])
         emission_row_sums = self.emissions.sum(1).flatten().tolist()[0]
-        reqs.extend([abs(row_sum - 1) < EPSILON for row_sum in emission_row_sums])
+        reqs.extend([abs(row_sum - 1) < epsilon for row_sum in emission_row_sums])
         return all(reqs)
 
+
+class AppliedHMM(object):
+    def __init__(self, training_data, smoothing_constant=.01):
+        self.hmm, self.o_mapper, self.s_mapper = parameter_estimation(training_data, smoothing_constant)
+
+    def decode(self, observations):
+        observation_code = [self.o_mapper[o] for o in observations]
+        state_code =  Algs.vitterbi(self.hmm, observation_code)
+        return [self.s_mapper[s] for s in state_code]
 
 class Mapping(dict):
     def __len__(self):
@@ -104,5 +114,5 @@ def parameter_estimation(training_data, smoothing_constant=.01):
     transitions = stochasticize_matrix(matrix, smoothing_constant)
 
     hmm = HiddenMarkovModel(initial, transitions, emissions)
-    return Model(hmm=hmm, o_mapper=observation_mapper, s_mapper=state_mapper)
+    return hmm, observation_mapper, state_mapper
 
