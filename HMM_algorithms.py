@@ -4,6 +4,9 @@ import operator
 import HMM
 
 def probability_of_observations(hmm, observations):
+    """ Calculates the probability that a set of observations would occur given a hidden markov
+        model. Considers all possible sequences of underlying states.
+    """
     T = len(observations)
     partial_probability = []
     first_observation = observations[0]
@@ -21,8 +24,12 @@ def probability_of_observations(hmm, observations):
 
 
 def analysis_of_state_sequences(hmm, observations):
-
+    """ Given an hmm and a sequence of observaitions, does a brute force analysis of
+        all possible state sequences to determine the most likely one.
+        Used for testing vitterbi with simple models.
+    """
     def all_sequences(elements, length):
+        """ Generates all possible lists of a certain length with certain element"""
         possible_seqs = [[]]
         for _ in range(length):
             possible_seqs = [sequence + [n] for sequence in possible_seqs for n in elements]
@@ -42,6 +49,9 @@ def analysis_of_state_sequences(hmm, observations):
 
 
 def vitterbi(hmm, observations):
+    """ Given a hmm, and a set of observations, determines the sequence of probabilities which
+        maximize the probability of generating the observations.
+     """
     T = len(observations)
     # Initialization
     first_observation = observations[0]
@@ -63,7 +73,6 @@ def vitterbi(hmm, observations):
     for t in range(1, T):
         states.insert(0, omega[t][states[0]])
     return states
-
 
 
 if __name__ == "__main__":

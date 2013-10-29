@@ -1,6 +1,5 @@
 import collections
 import itertools
-import math
 import numpy
 
 import HMM_algorithms as Algs
@@ -90,8 +89,8 @@ def stochasticize_matrix(matrix, smoothing_constant):
     return [stochasticize(row, smoothing_constant) for row in matrix]
 
 
-# Creates a model from real data.
 def parameter_estimation(training_data, smoothing_constant=.01):
+    """ Creates a model from real data. """
     observations = [[o for o,s in row] for row in training_data]
     states = [[s for o,s in row] for row in training_data]
 
