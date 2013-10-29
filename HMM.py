@@ -2,11 +2,8 @@ import collections
 import itertools
 import math
 import numpy
+
 import HMM_algorithms as Algs
-
-
-#Model = collections.namedtuple('Model', ['hmm', 'o_mapper', 's_mapper'])
-
 
 class HiddenMarkovModel(object):
 
@@ -27,6 +24,9 @@ class HiddenMarkovModel(object):
         self.states = range(self.N)
         self.observations = range(self.M)
 
+    # Checks that
+    #   1) The matrices are of proper dimensions.
+    #   2) The matrices are row stochastic (probabilities add to 1)
     def is_valid(self):
         epsilon = 0.000001
         M = self.M
@@ -43,15 +43,17 @@ class HiddenMarkovModel(object):
         reqs.extend([abs(row_sum - 1) < epsilon for row_sum in emission_row_sums])
         return all(reqs)
 
-
+# A class that encapsulates the hidden markov model for use with real data.
 class AppliedHMM(object):
     def __init__(self, training_data, smoothing_constant=.01):
         self.hmm, self.o_mapper, self.s_mapper = parameter_estimation(training_data, smoothing_constant)
 
+    # Determines the most likely states for a list of lists of observations.
     def decode(self, observations):
         observation_code = [self.o_mapper[o] for o in observations]
         state_code =  Algs.vitterbi(self.hmm, observation_code)
         return [self.s_mapper[s] for s in state_code]
+
 
 class Mapping(dict):
     def __len__(self):
@@ -61,7 +63,7 @@ class Mapping(dict):
         dict.__setitem__(self, key, value)
         dict.__setitem__(self, value, key)
 
-
+# Used to convert real data to integers for more concise coding.
 def get_mapping(list_of_sequences):
     all_elements = set(itertools.chain(*list_of_sequences))
     numbered = enumerate(list(all_elements))
@@ -88,6 +90,7 @@ def stochasticize_matrix(matrix, smoothing_constant):
     return [stochasticize(row, smoothing_constant) for row in matrix]
 
 
+# Creates a model from real data.
 def parameter_estimation(training_data, smoothing_constant=.01):
     observations = [[o for o,s in row] for row in training_data]
     states = [[s for o,s in row] for row in training_data]
