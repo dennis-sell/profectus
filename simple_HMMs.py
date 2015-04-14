@@ -50,22 +50,6 @@ class HiddenMarkovModel(object):
         return states
 
 
-# A class that encapsulates the hidden markov model for use with real data.
-class AppliedHMM(object):
-    def __init__(self, training_data, smoothing_constant=.01):
-        self.hmm, self.o_mapper, self.s_mapper = \
-            parameter_estimation(training_data, smoothing_constant)
-
-    def can_decode(self, observations):
-        return all(o in self.o_mapper for o in observations)
-
-    # Determines the most likely states for a list of lists of observations.
-    def decode(self, observations):
-        observation_code = [self.o_mapper[o] for o in observations]
-        state_code =  self.hmm.vitterbi(observation_code)
-        return [self.s_mapper[s] for s in state_code]
-
-
 class Mapping(dict):
     def __len__(self):
         return dict.__len__(self) / 2
@@ -101,8 +85,34 @@ def stochasticize_matrix(matrix, smoothing_constant):
     return [stochasticize(row, smoothing_constant) for row in matrix]
 
 
+# A class that encapsulates the hidden markov model for use with real data.
+class AppliedHMM(object):
+    def __init__(self, training_data, smoothing_constant=.01):
+        """ Creates a model from real data.
+
+            Data should be a list of list of observation, state pairs.
+            [[(observation, state)]]
+        """
+        self.hmm, self.o_mapper, self.s_mapper = \
+            parameter_estimation(training_data, smoothing_constant)
+
+    # Checks if all observations have been seen before.
+    def can_decode(self, observations):
+        return all(o in self.o_mapper for o in observations)
+
+    # Determines the most likely states for a list of lists of observations.
+    def decode(self, observations):
+        observation_code = [self.o_mapper[o] for o in observations]
+        state_code =  self.hmm.vitterbi(observation_code)
+        return [self.s_mapper[s] for s in state_code]
+
+
 def parameter_estimation(training_data, smoothing_constant=.01):
-    """ Creates a model from real data. """
+    """ Creates a model from real data.
+
+        Data should be a list of list of observation, state pairs.
+        [[(observation, state)]]
+    """
     observations = [[o for o,s in row] for row in training_data]
     states = [[s for o,s in row] for row in training_data]
 
